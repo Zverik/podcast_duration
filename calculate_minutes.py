@@ -45,8 +45,7 @@ for p in data:
         dmed = len(mins) // 5
     med_low = round(mins[dmed])
     med_high = round(mins[-1-dmed])
-    need_two = (max(med_high-median, median-med_low) > 10 and
-                med_high * 1.0 / med_low > 1.5)
+    need_two = med_high-med_low > 10 and med_high * 1.0 / med_low > 1.5
     if need_two:
         res = '{}—{} {}'.format(r5(med_low), r5(med_high), minut(r5(med_high)))
     else:
