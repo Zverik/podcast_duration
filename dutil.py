@@ -1,5 +1,6 @@
 import requests
 import re
+import json
 
 
 def extract_hms(m):
@@ -28,6 +29,16 @@ EXTRACTORS = {
 def download_data():
     resp = requests.get('https://russiancast.club/data.json')
     return resp.json()
+
+
+def read_lengths():
+    with open('rupodcast_lengths.json', 'r') as f:
+        return json.load(f)
+
+
+def write_lengths(lengths):
+    with open('rupodcast_lengths.json', 'w') as f:
+        json.dump(lengths, f, ensure_ascii=False)
 
 
 def get_durations(podcast):

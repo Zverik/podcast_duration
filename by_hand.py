@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-import json
 import sys
 import dutil
 
@@ -10,11 +9,8 @@ if len(sys.argv) < 2:
 data = dutil.download_data()
 title = [p['title'] for p in data if 'itunes' in p and sys.argv[1] in p['itunes']][0]
 
-with open('rupodcast_lengths.json', 'r') as f:
-    lengths = json.load(f)
-
+lengths = dutil.read_lengths()
 if title not in lengths:
     lengths[title] = {}
 lengths[title]['byhand'] = [float(p) for p in sys.argv[2].split(',') if p]
-with open('rupodcast_lengths.json', 'w') as f:
-    json.dump(lengths, f, ensure_ascii=False)
+dutil.write_lengths(lengths)
