@@ -7,22 +7,32 @@ def extract_hms(m):
     return [float(g[0] or 0) * 60 + float(g[1]) + float(g[2]) / 60 for g in m]
 
 
+def extract_rss(m):
+    result = []
+    for dur in m:
+        g = dur.split(':')
+        while len(g) < 3:
+            g = [0] + g
+        result.append(float(g[0] or 0) * 60 + float(g[1]) + float(g[2]) / 60)
+    return result
+
+
 EXTRACTORS = {
     'overcast': (
-     re.compile(r'&bull;\s+(\d+) min'),
-     lambda m: [float(x) for x in m]),
+        re.compile(r'&bull;\s+(\d+) min'),
+        lambda m: [float(x) for x in m]),
     'soundcloud': (
-     re.compile(r'meta itemprop="duration" content="PT(\d\d)H(\d\d)M(\d\d)S"'),
-     extract_hms),
+        re.compile(r'meta itemprop="duration" content="PT(\d\d)H(\d\d)M(\d\d)S"'),
+        extract_hms),
     'vk': (
-     re.compile(r'<div class="[^"]*audio_row__duration[^"]*">(?:(\d):)?(\d+):(\d+)</div>'),
-     extract_hms),
+        re.compile(r'<div class="[^"]*audio_row__duration[^"]*">(?:(\d):)?(\d+):(\d+)</div>'),
+        extract_hms),
     'rss': (
-     re.compile(r'<itunes:duration>(?:(\d+):)?(\d+):(\d+)\s*</itunes:duration>', re.M | re.S),
-     extract_hms),
+        re.compile(r'<itunes:duration>\s*([\d:]+)\s*</itunes:duration>', re.M | re.S),
+        extract_rss),
     'spotify': (
-     re.compile(r'<span class="total-duration">(?:(\d+):)?(\d+):(\d+)</span>'),
-     extract_hms),
+        re.compile(r'<span class="total-duration">(?:(\d+):)?(\d+):(\d+)</span>'),
+        extract_hms),
 }
 
 
