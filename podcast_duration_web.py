@@ -8,11 +8,14 @@ app = Flask(__name__)
 def find_duration(s):
     s = s.strip()
     if re.match(r'^[.,\d\s]+$', s):
-        mins = [float(p.strip()) for p in s.split(',')]
-        if len(mins) == 0:
+        byhand = dutil.parse_text('byhand', s)
+        if not byhand:
             return ''
-        med = dutil.find_medians(mins)
-        return dutil.format_medians(*med)
+        if 'duration' in byhand:
+            med = dutil.find_medians(byhand['duration'])
+            return dutil.format_medians(*med)
+        elif 'date' in byhand:
+            return 'dates not supported yet'
     podcast = {}
     for m in re.findall(r'"([a-z]+)":\s*"(http[^"]+)"', s):
         podcast[m[0]] = m[1]

@@ -5,6 +5,9 @@ import datetime
 import os
 
 
+DATE_FORMAT = '%Y-%m-%d'
+
+
 def extract_hms(g):
     return float(g[0] or 0) * 60 + float(g[1]) + float(g[2]) / 60
 
@@ -40,9 +43,14 @@ def parse_rss_date(m):
 
 
 EXTRACTORS = {
+    'byhand': {
+        'duration': (re.compile(r'\d{1,3}(?:\.\d+)?'), lambda x: float(x)),
+        'date': (re.compile(r'(\d\d)(\d\d)(\d\d)'), lambda m: (int(m[0]), int(m[1]), int(m[2]))),
+    },
     'overcast': {
         'duration': (re.compile(r'&bull;\s+(\d+) min'), lambda x: float(x)),
-        'date': (re.compile(r'<div class="caption2[^"]+">\s+([A-Z][a-z]{2})\s+(\d+)(?:, (\d{4}))?\s+(?:&bull;[^<]+)?</div>', re.S),
+        'date': (re.compile(r'<div class="caption2[^"]+">\s+([A-Z][a-z]{2})\s+'
+                            '(\d+)(?:, (\d{4}))?\s+(?:&bull;[^<]+)?</div>', re.S),
                  parse_overcast_date),
     },
     'soundcloud': {
@@ -53,7 +61,8 @@ EXTRACTORS = {
     },
     'vk': {
         'duration': (
-            re.compile(r'<div class="[^"]*audio_row__duration[^"]*">(?:(\d):)?(\d+):(\d+)</div>'.encode()),
+            re.compile(r'<div class="[^"]*audio_row__duration[^"]*">'
+                       '(?:(\d):)?(\d+):(\d+)</div>'.encode()),
             extract_hms),
     },
     'rss': {
@@ -99,7 +108,7 @@ def parse_text(ex_name, text):
 def get_durations(podcast):
     mins = {}
     for name in EXTRACTORS:
-        if name == 'vk':
+        if name in ('vk', 'byhand'):
             continue
         if podcast.get(name):
             resp = requests.get(podcast[name])
@@ -110,9 +119,14 @@ def get_durations(podcast):
 
 
 def find_longest_mins(lengths):
-    durs = {k: v.get('duration', []) for k, v in lengths.items()}
-    ll = [[x for x in p if x >= 1] for p in durs.values()]
+    durs = [v.get('duration', []) for v in lengths.values()]
+    ll = [[x for x in p if x >= 1] for p in durs]
     return sorted(ll, key=lambda d: len(d))[-1]
+
+
+def find_longest_dates(lengths):
+    dates = [v.get('date', []) for v in lengths.values()]
+    return sorted(dates, key=lambda d: len(d))[-1]
 
 
 def find_medians(mins):
@@ -155,3 +169,71 @@ def format_medians(median, med_low, med_high):
     else:
         res = '{} {}'.format(r5(median), minut(r5(median)))
     return res
+
+
+def get_latest_date(dates):
+    if not dates:
+        return None
+    return datetime.date(*max(dates)).strftime(DATE_FORMAT)
+
+
+def get_median_interval(dates):
+    if len(dates) < 2:
+        return None
+    today = datetime.date.today()
+    days = sorted((today - datetime.date(*d)).days for d in dates)
+    daydiffs = [days[i+1] - days[i] for i in range(len(days)-1)]
+    daydiffs = [d for d in daydiffs if d > 0]
+    # print(daydiffs)
+    if not daydiffs:
+        return None
+    if len(daydiffs) == 1:
+        return daydiffs[0]
+
+    # Take last 20, so that format changes do not affect the result
+    if len(daydiffs) > 20:
+        daydiffs = daydiffs[:20]
+    daydiffs.sort()
+
+    median = daydiffs[len(daydiffs) // 2]
+    if len(daydiffs) % 2 == 0:
+        return (daydiffs[len(daydiffs) // 2 - 1] + median) // 2
+    # TODO: detect podcast with no fixed frequency
+    return median
+
+
+def format_interval(median):
+    if not median:
+        return ''
+    if median == 1:
+        return 'ежедневно'
+    if median == 2:
+        return 'через день'
+    if 3 <= median <= 5:
+        return 'дважды в неделю'
+    if 6 <= median <= 9:
+        return 'еженедельно'
+    if 10 <= median <= 17:
+        return 'раз в две недели'
+    if 18 <= median <= 25:
+        return 'раз в три недели'
+    if 26 <= median <= 40:
+        return 'ежемесячно'
+    return 'нерегулярно'
+
+
+def gen_additional_fields(lengths):
+    result = {}
+    if not lengths:
+        return result
+    mins = find_longest_mins(lengths)
+    if mins:
+        median, med_low, med_high = find_medians(mins)
+        result['duration'] = format_medians(median, med_low, med_high)
+    dates = find_longest_dates(lengths)
+    if dates:
+        result['latest'] = get_latest_date(dates)
+        interval = get_median_interval(dates)
+        if interval:
+            result['frequency'] = format_interval(interval)
+    return result
