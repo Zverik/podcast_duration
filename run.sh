@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e -u
-./get_podcast_length.py
+./get_podcast_lengths.py
 ./parse_vk.py https://vk.com/podcasts-54456105 ~/Downloads/linkmeup.html
 ./by_hand.py https://itunes.apple.com/podcast/id384460470?mt=2 35,50,39,43,45,62,49,40,65,87,45,67,40,39,36,49,42,26,43,41
 ./by_hand.py /id1209769632?mt=2 37,35,41,32,28,29,25,26,26,27

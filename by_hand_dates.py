@@ -3,7 +3,7 @@ import sys
 import dutil
 
 if len(sys.argv) < 2:
-    print('Usage: {} <itunes_url> <lengths>'.format(sys.argv[0]))
+    print('Usage: {} <itunes_url> <yymmdd,yymmdd,...>'.format(sys.argv[0]))
     sys.exit(1)
 
 data = dutil.download_data()
@@ -14,5 +14,6 @@ if title not in lengths:
     lengths[title] = {}
 if 'byhand' not in lengths[title]:
     lengths[title]['byhand'] = {}
-lengths[title]['byhand']['duration'] = [float(p) for p in sys.argv[2].split(',') if p]
+lengths[title]['byhand']['date'] = [(int(s[:2]), int(s[2:4]), int(s[4:]))
+                                    for s in sys.argv[2].split(',') if s]
 dutil.write_lengths(lengths)
