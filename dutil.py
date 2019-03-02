@@ -42,10 +42,17 @@ def parse_rss_date(m):
     return int(m[2]), month, int(m[0])
 
 
+class ByHandDurationParser:
+    @staticmethod
+    def findall(s):
+        return [p for p in s.split(',') if 1 < len(p) < 6]
+
+
 EXTRACTORS = {
     'byhand': {
-        'duration': (re.compile(r'\d{1,3}(?:\.\d+)?'), lambda x: float(x)),
-        'date': (re.compile(r'(\d\d)(\d\d)(\d\d)'), lambda m: (int(m[0]), int(m[1]), int(m[2]))),
+        'duration': (ByHandDurationParser, lambda x: float(x)),
+        'date': (re.compile(r'(\d\d)(\d\d)(\d\d)'),
+                 lambda m: (2000 + int(m[0]), int(m[1]), int(m[2]))),
     },
     'overcast': {
         'duration': (re.compile(r'&bull;\s+(\d+) min'), lambda x: float(x)),
@@ -197,6 +204,10 @@ def get_median_interval(dates):
 def format_interval(median, med_low, med_high):
     if not median:
         return ''
+    if med_high > 40:
+        return 'нерегулярно'
+    if med_high > med_low * 3 and median > 14:
+        return 'нерегулярно'
     if median == 1:
         return 'ежедневно'
     if median == 2:
