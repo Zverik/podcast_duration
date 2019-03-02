@@ -226,8 +226,11 @@ def gen_additional_fields(lengths):
         result['duration'] = format_medians(*meds)
     dates = find_longest_dates(lengths)
     if dates:
-        result['latest'] = get_latest_date(dates)
         meds = get_median_interval(dates)
+        latest = get_latest_date(dates)
+        age = (datetime.datetime.now() - datetime.datetime.strptime(
+            latest, DATE_FORMAT)).days
+        result['active'] = age <= (32 if not meds else max(32, meds[0] * 2))
         if meds:
             result['frequency'] = format_interval(*meds)
     return result

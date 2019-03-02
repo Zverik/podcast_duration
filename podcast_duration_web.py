@@ -1,6 +1,7 @@
 from flask import Flask, request, url_for
 import dutil
 import re
+import json
 
 app = Flask(__name__)
 
@@ -20,7 +21,7 @@ def find_duration(s):
     data = dutil.gen_additional_fields(lengths)
     if not data:
         return ''
-    return '<br>'.join('"{}": "{}"'.format(k, v) for k, v in data.items())
+    return json.dumps(data, indent=2, ensure_ascii=False)
 
 
 @app.route('/', methods=['GET', 'POST'])
