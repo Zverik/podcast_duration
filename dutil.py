@@ -187,22 +187,14 @@ def get_median_interval(dates):
     # print(daydiffs)
     if not daydiffs:
         return None
-    if len(daydiffs) == 1:
-        return daydiffs[0]
 
     # Take last 20, so that format changes do not affect the result
     if len(daydiffs) > 20:
         daydiffs = daydiffs[:20]
-    daydiffs.sort()
-
-    median = daydiffs[len(daydiffs) // 2]
-    if len(daydiffs) % 2 == 0:
-        return (daydiffs[len(daydiffs) // 2 - 1] + median) // 2
-    # TODO: detect podcast with no fixed frequency
-    return median
+    return find_medians(daydiffs)
 
 
-def format_interval(median):
+def format_interval(median, med_low, med_high):
     if not median:
         return ''
     if median == 1:
@@ -219,6 +211,8 @@ def format_interval(median):
         return 'раз в три недели'
     if 26 <= median <= 40:
         return 'ежемесячно'
+    else:
+        return 'реже раза в месяц'
     return 'нерегулярно'
 
 
@@ -228,12 +222,12 @@ def gen_additional_fields(lengths):
         return result
     mins = find_longest_mins(lengths)
     if mins:
-        median, med_low, med_high = find_medians(mins)
-        result['duration'] = format_medians(median, med_low, med_high)
+        meds = find_medians(mins)
+        result['duration'] = format_medians(*meds)
     dates = find_longest_dates(lengths)
     if dates:
         result['latest'] = get_latest_date(dates)
-        interval = get_median_interval(dates)
-        if interval:
-            result['frequency'] = format_interval(interval)
+        meds = get_median_interval(dates)
+        if meds:
+            result['frequency'] = format_interval(*meds)
     return result

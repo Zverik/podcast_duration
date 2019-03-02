@@ -7,24 +7,20 @@ app = Flask(__name__)
 
 def find_duration(s):
     s = s.strip()
+    podcast = {}
     if re.match(r'^[.,\d\s]+$', s):
         byhand = dutil.parse_text('byhand', s)
         if not byhand:
             return ''
-        if 'duration' in byhand:
-            med = dutil.find_medians(byhand['duration'])
-            return dutil.format_medians(*med)
-        elif 'date' in byhand:
-            return 'dates not supported yet'
-    podcast = {}
-    for m in re.findall(r'"([a-z]+)":\s*"(http[^"]+)"', s):
-        podcast[m[0]] = m[1]
-    lengths = dutil.get_durations(podcast)
-    mins = dutil.find_longest_mins(lengths)
-    if not mins:
+        lengths = {'byhand': byhand}
+    else:
+        for m in re.findall(r'"([a-z]+)":\s*"(http[^"]+)"', s):
+            podcast[m[0]] = m[1]
+        lengths = dutil.get_durations(podcast)
+    data = dutil.gen_additional_fields(lengths)
+    if not data:
         return ''
-    med = dutil.find_medians(mins)
-    return dutil.format_medians(*med)
+    return '<br>'.join('"{}": "{}"'.format(k, v) for k, v in data.items())
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -33,8 +29,6 @@ def front():
     urls = request.form.get('urls', '')
     if request.method == 'POST':
         duration_string = find_duration(urls)
-        if duration_string:
-            duration_string = '"duration": "{}"'.format(duration_string)
     return '''
 <!doctype html>
 <html>
@@ -50,7 +44,7 @@ def front():
   <input type="submit" value="Отправить">
   <a href="{action}">Очистить</a>
   </form>
-  <div style="margin-top: 3em;">{dur}</div>
+  <pre style="margin-top: 3em; font-size: 20px;">{dur}</pre>
 </body>
 </html>
 '''.format(action=url_for('front'), urls=urls, dur=duration_string)
