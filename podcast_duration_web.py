@@ -1,4 +1,4 @@
-from flask import Flask, request, url_for
+from flask import Flask, request, url_for, send_from_directory
 import dutil
 import re
 import json
@@ -24,6 +24,11 @@ def find_duration(s):
     return json.dumps(data, indent=2, ensure_ascii=False)
 
 
+@app.route('/pdur.css')
+def serve_css():
+    return send_from_directory('css', 'pdur.css')
+
+
 @app.route('/', methods=['GET', 'POST'])
 def front():
     duration_string = ''
@@ -36,6 +41,7 @@ def front():
 <head>
   <meta charset="utf-8">
   <title>Получаем длительности подкастов</title>
+  <link rel="stylesheet" href="/pdur.css" type="text/css">
 </head>
 <body>
   <h2>Получаем длительности треков в подкасте</h2>
