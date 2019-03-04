@@ -1,5 +1,4 @@
 #!/bin/bash
-set -e -u
 ./get_podcast_lengths.py
 ./parse_vk.py https://vk.com/podcasts-54456105 ~/Downloads/linkmeup.html
 

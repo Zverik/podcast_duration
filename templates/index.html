@@ -1,0 +1,23 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Получаем длительности подкастов</title>
+  <link rel="stylesheet" href="{{ url_for('static', 'pdur.css') }}" type="text/css">
+</head>
+<body>
+  <h2>Получаем длительности треков в подкасте</h2>
+  <form action="{{ url_for('front') }}" method="POST">
+    <div>Скопируйте сюда кусок json или введите минуты через запятую:</div>
+    <textarea name="urls">{urls}</textarea><br>
+    <input type="submit" value="Отправить">
+    <a href="{{ url_for('front') }}">Очистить</a>
+  </form>
+  <pre>{dur}</pre>
+  <form action="{{ url_for('upload') }}" method="POST" enctype="multipart/form-data">
+    <div>Обновление целого файла:</div>
+    <input type="file" name="file">
+    <input type="submit" value="Отправить">
+  </form>
+</body>
+</html>

@@ -1,10 +1,18 @@
-from flask import Flask, request, url_for, send_from_directory, flash, redirect, jsonify
+from flask import (
+    Flask, request, url_for, send_from_directory,
+    flash, redirect, jsonify, render_template
+)
 import dutil
 import re
 import json
 
 app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 2 * 1024 * 1024
+
+
+class DurationThread(threading.Thread):
+    def __init__(self):
+        pass
 
 
 def find_duration(s):
@@ -36,34 +44,9 @@ def serve_css():
 def front():
     duration_string = ''
     urls = request.form.get('urls', '')
-    if request.method == 'POST':
+    if urls and request.method == 'POST':
         duration_string = find_duration(urls)
-    return '''
-<!doctype html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <title>Получаем длительности подкастов</title>
-  <link rel="stylesheet" href="pdur.css" type="text/css">
-</head>
-<body>
-  <h2>Получаем длительности треков в подкасте</h2>
-  <form action="{action}" method="POST">
-    <div>Скопируйте сюда кусок json или введите минуты через запятую:</div>
-    <textarea name="urls">{urls}</textarea><br>
-    <input type="submit" value="Отправить">
-    <a href="{action}">Очистить</a>
-  </form>
-  <pre>{dur}</pre>
-  <form action="{upload}" method="POST" enctype="multipart/form-data">
-    <div>Обновление целого файла:</div>
-    <input type="file" name="file">
-    <input type="submit" value="Отправить">
-  </form>
-</body>
-</html>
-'''.format(action=url_for('front'), upload=url_for('upload'),
-           urls=urls, dur=duration_string)
+    return render_template('index.html', urls=urls, dur=duration_string)
 
 
 @app.route('/upload', methods=['POST'])
