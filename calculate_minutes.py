@@ -22,7 +22,7 @@ def calc_frequency(lengths):
     age = (datetime.datetime.now() - datetime.datetime.strptime(
         latest, dutil.DATE_FORMAT)).days
     interval = dutil.get_median_interval(dates)
-    active = age <= (32 if not interval else max(32, interval[0] * 2))
+    active = age <= (32 if not interval else max(32, interval[1] + interval[2]))
     status = 'active' if active else 'inactive'
     if interval:
         res = dutil.format_interval(*interval)

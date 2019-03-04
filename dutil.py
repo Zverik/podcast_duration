@@ -241,7 +241,7 @@ def gen_additional_fields(lengths):
         latest = get_latest_date(dates)
         age = (datetime.datetime.now() - datetime.datetime.strptime(
             latest, DATE_FORMAT)).days
-        result['active'] = age <= (32 if not meds else max(32, meds[0] * 2))
+        result['active'] = age <= (32 if not meds else max(32, meds[1] + meds[2]))
         if meds:
             result['frequency'] = format_interval(*meds)
     return result
