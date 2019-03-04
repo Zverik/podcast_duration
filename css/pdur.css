@@ -46,6 +46,11 @@ h2
 	line-height: 34px;
 	margin-bottom: 20px; }
 
+div
+{
+        font-size: 16px;
+        line-height: 20px; }
+
 textarea
 {	background-color: rgba(0,0,0,.03);
 	border-radius: 5px;
