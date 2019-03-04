@@ -45,7 +45,7 @@ def parse_rss_date(m):
 class ByHandDurationParser:
     @staticmethod
     def findall(s):
-        return [p for p in s.split(',') if 1 < len(p) < 6]
+        return [p for p in s.split(',') if 1 <= len(p) < 6]
 
 
 EXTRACTORS = {
@@ -172,7 +172,7 @@ def format_medians(median, med_low, med_high):
 
     need_two = med_high-med_low > 10 and med_high * 1.0 / med_low > 1.5
     if need_two:
-        res = '{}—{} {}'.format(r5(med_low), r5(med_high), minut(r5(med_high)))
+        res = '{}&ndash;{} {}'.format(r5(med_low), r5(med_high), minut(r5(med_high)))
     else:
         res = '{} {}'.format(r5(median), minut(r5(median)))
     return res
@@ -213,13 +213,13 @@ def format_interval(median, med_low, med_high):
     if median == 2:
         return 'через день'
     if 3 <= median <= 5:
-        return 'дважды в неделю'
+        return 'дважды в&nbsp;неделю'
     if 6 <= median <= 9:
         return 'еженедельно'
     if 10 <= median <= 17:
-        return 'раз в две недели'
+        return 'раз в&nbsp;две недели'
     if 18 <= median <= 25:
-        return 'раз в три недели'
+        return 'раз в&nbsp;три недели'
     if 26 <= median <= 40:
         return 'ежемесячно'
     else:
