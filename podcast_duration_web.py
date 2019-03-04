@@ -1,9 +1,10 @@
-from flask import Flask, request, url_for, send_from_directory
+from flask import Flask, request, url_for, send_from_directory, flash, redirect, jsonify
 import dutil
 import re
 import json
 
 app = Flask(__name__)
+app.config['MAX_CONTENT_LENGTH'] = 2 * 1024 * 1024
 
 
 def find_duration(s):
@@ -12,6 +13,7 @@ def find_duration(s):
     if re.match(r'^[.,\d\s]+$', s):
         byhand = dutil.parse_text('byhand', s)
         if not byhand:
+            flash('Ожидаю числа через запятую: min,min,min или yymmdd,yymmdd')
             return ''
         lengths = {'byhand': byhand}
     else:
@@ -20,6 +22,7 @@ def find_duration(s):
         lengths = dutil.get_durations(podcast)
     data = dutil.gen_additional_fields(lengths)
     if not data:
+        flash('Формат понятен, но выводов нет')
         return ''
     return json.dumps(data, indent=2, ensure_ascii=False)
 
@@ -46,12 +49,35 @@ def front():
 <body>
   <h2>Получаем длительности треков в подкасте</h2>
   <form action="{action}" method="POST">
-  <div>Скопируйте сюда кусок json или введите минуты через запятую:</div>
-  <textarea name="urls" style="width: 90%; height: 15em;">{urls}</textarea><br>
-  <input type="submit" value="Отправить">
-  <a href="{action}">Очистить</a>
+    <div>Скопируйте сюда кусок json или введите минуты через запятую:</div>
+    <textarea name="urls">{urls}</textarea><br>
+    <input type="submit" value="Отправить">
+    <a href="{action}">Очистить</a>
   </form>
-  <pre style="margin-top: 3em; font-size: 20px;">{dur}</pre>
+  <pre>{dur}</pre>
+  <form action="{upload}" method="POST" enctype="multipart/form-data">
+    <div>Обновление целого файла:</div>
+    <input type="file" name="file">
+    <input type="submit" value="Отправить">
+  </form>
 </body>
 </html>
-'''.format(action=url_for('front'), urls=urls, dur=duration_string)
+'''.format(action=url_for('front'), upload=url_for('upload'),
+           urls=urls, dur=duration_string)
+
+
+@app.route('/upload', methods=['POST'])
+def upload():
+    if 'file' not in request.files:
+        flash('Файл куда-то пропал')
+        return redirect(url_for('front'))
+    try:
+        data = json.load(request.files['file'])
+    except Exception as e:
+        flash('Ошибка при чтении файла: {}'.format(e))
+        return redirect(url_for('front'))
+    for p in data:
+        if 'title' in p:
+            lengths = dutil.get_durations(p)
+            p.update(dutil.gen_additional_fields(lengths))
+    return jsonify(data)
