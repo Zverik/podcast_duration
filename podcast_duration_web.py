@@ -41,7 +41,7 @@ def front():
 <head>
   <meta charset="utf-8">
   <title>Получаем длительности подкастов</title>
-  <link rel="stylesheet" href="/pdur.css" type="text/css">
+  <link rel="stylesheet" href="pdur.css" type="text/css">
 </head>
 <body>
   <h2>Получаем длительности треков в подкасте</h2>
