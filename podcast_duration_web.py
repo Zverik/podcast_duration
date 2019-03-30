@@ -10,11 +10,6 @@ app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 2 * 1024 * 1024
 
 
-class DurationThread(threading.Thread):
-    def __init__(self):
-        pass
-
-
 def find_duration(s):
     s = s.strip()
     podcast = {}
