@@ -6,6 +6,7 @@ import os
 
 
 DATE_FORMAT = '%Y-%m-%d'
+DATA_PATH = 'rupodcast_lengths.json'
 
 
 def extract_hms(g):
@@ -92,14 +93,14 @@ def download_data():
 
 
 def read_lengths():
-    if not os.path.exists('rupodcast_lengths.json'):
+    if not os.path.exists(DATA_PATH):
         return {}
-    with open('rupodcast_lengths.json', 'r') as f:
+    with open(DATA_PATH, 'r') as f:
         return json.load(f)
 
 
 def write_lengths(lengths):
-    with open('rupodcast_lengths.json', 'w') as f:
+    with open(DATA_PATH, 'w') as f:
         json.dump(lengths, f, ensure_ascii=False)
 
 
