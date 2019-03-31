@@ -17,6 +17,7 @@ def augment(url, values, data, result):
         types = ['itunes', 'soundcloud']
         atype = 'byhand'
     podcast = None
+    title = url
     for p in data:
         for t in types:
             if t in p and url in p[t]:

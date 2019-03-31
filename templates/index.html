@@ -3,21 +3,39 @@
 <head>
   <meta charset="utf-8">
   <title>Получаем длительности подкастов</title>
-  <link rel="stylesheet" href="{{ url_for('static', 'pdur.css') }}" type="text/css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='pdur.css') }}" type="text/css">
 </head>
 <body>
   <h2>Получаем длительности треков в подкасте</h2>
-  <form action="{{ url_for('front') }}" method="POST">
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      <ul class=flashes>
+      {% for message in messages %}
+        <li>{{ message }}</li>
+      {% endfor %}
+      </ul>
+    {% endif %}
+  {% endwith %}
+  <form action="{{ url_for('front') }}" method="POST" id="editbox">
     <div>Скопируйте сюда кусок json или введите минуты через запятую:</div>
-    <textarea name="urls">{urls}</textarea><br>
+    <textarea name="urls">{{ urls }}</textarea><br>
     <input type="submit" value="Отправить">
     <a href="{{ url_for('front') }}">Очистить</a>
   </form>
-  <pre>{dur}</pre>
-  <form action="{{ url_for('upload') }}" method="POST" enctype="multipart/form-data">
-    <div>Обновление целого файла:</div>
+  {% if dur %}
+  <pre>{{ dur }}</pre>
+  {% endif %}
+  {% if status %}
+  <div id="status">Status: {{ status }}</div>
+  {% else %}
+  <h2>Обновление целого файла</h2>
+  <form action="{{ url_for('upload') }}" method="POST" enctype="multipart/form-data" id="uploader">
     <input type="file" name="file">
     <input type="submit" value="Отправить">
   </form>
+  {% if result_date %}
+  <p><a href="{{ url_for('static', filename='result.json') }}">Скачать обработанный файл</a> ({{ result_date }}).</p>
+  {% endif %}
+  {% endif %}
 </body>
 </html>

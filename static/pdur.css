@@ -34,22 +34,27 @@ a, a:visited
 	display: inline-block;
 	font-size: 16px;
 	line-height: 20px;
-	margin: 27px 0 0 130px;
 	text-decoration: none;
 	outline: none !important; }
 
 a:hover { color: #000; }
 
+form a
+{
+	margin: 27px 0 0 130px; }
+
 h2
 {	font-size: 26px;
 	font-weight: bold;
 	line-height: 34px;
+  margin-top: 1em;
 	margin-bottom: 20px; }
 
-div
+div, p, ul
 {
-        font-size: 16px;
-        line-height: 20px; }
+  clear: both;
+  font-size: 16px;
+  line-height: 20px; }
 
 textarea
 {	background-color: rgba(0,0,0,.03);
@@ -72,7 +77,6 @@ input[type=submit]
 {	background-color: #fff;
 	border-radius: 6px;
 	box-shadow: 0 0 0 1px rgba(0,0,0,.1), 0 4px 16px 0 rgba(0,0,0,.1);
-	position: absolute;
 	font-size: 16px;
 	margin-top: 20px;
 	padding: 8px 14px 10px 14px;
@@ -83,6 +87,11 @@ input[type=submit]:active
 	color: #000;
 	margin-top: 21px; }
 
+#editbox input[type=submit]
+{
+	position: absolute;
+}
+
 pre
 {	background-color: rgba(0,0,0,.03);
 	border-radius: 5px;
@@ -92,3 +101,7 @@ pre
 	margin-top: 50px;
 	-webkit-user-select: text;
 	user-select: text; }
+
+.flashes
+{
+  color: darkred; }

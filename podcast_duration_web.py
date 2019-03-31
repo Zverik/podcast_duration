@@ -1,13 +1,19 @@
 from flask import (
     Flask, request, url_for, send_from_directory,
-    flash, redirect, jsonify, render_template
+    flash, redirect,  render_template
 )
 import dutil
 import re
 import json
+import os
+from datetime import datetime
 
 app = Flask(__name__)
+app.secret_key = 'sdfkjhi*&^guKJGADS&^R@'
 app.config['MAX_CONTENT_LENGTH'] = 2 * 1024 * 1024
+STATUS_PATH = os.path.join(os.path.dirname(__file__), 'status.txt')
+TMP_DATA_PATH = os.path.join(os.path.dirname(__file__), 'data.json')
+PYTHON_PATH = '/usr/bin/python3'
 
 
 def find_duration(s):
@@ -41,21 +47,26 @@ def front():
     urls = request.form.get('urls', '')
     if urls and request.method == 'POST':
         duration_string = find_duration(urls)
-    return render_template('index.html', urls=urls, dur=duration_string)
+    status = None
+    if os.path.exists(STATUS_PATH):
+        with open(STATUS_PATH, 'r') as f:
+            status = f.read()
+    result_path = os.path.join(os.path.dirname(__file__), 'static', 'result.json')
+    result_date = None
+    if os.path.exists(result_path):
+        stat = os.stat(result_path)
+        result_date = datetime.fromtimestamp(int(stat.st_mtime)).strftime('%Y-%m-%d %H:%M')
+    return render_template('index.html', urls=urls, dur=duration_string,
+                           status=status, result_date=result_date)
 
 
 @app.route('/upload', methods=['POST'])
 def upload():
-    if 'file' not in request.files:
+    if os.path.exists(STATUS_PATH):
+        flash('Файл уже обрабатывается, подождите или напишите Илье')
+    elif 'file' not in request.files:
         flash('Файл куда-то пропал')
-        return redirect(url_for('front'))
-    try:
-        data = json.load(request.files['file'])
-    except Exception as e:
-        flash('Ошибка при чтении файла: {}'.format(e))
-        return redirect(url_for('front'))
-    for p in data:
-        if 'title' in p:
-            lengths = dutil.get_durations(p)
-            p.update(dutil.gen_additional_fields(lengths))
-    return jsonify(data)
+    else:
+        flash('Подождите минуту, запускаем скрипт..')
+        request.files['file'].save(TMP_DATA_PATH)
+    return redirect(url_for('front'))
