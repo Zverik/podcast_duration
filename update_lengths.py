@@ -5,6 +5,7 @@ import argparse
 import os
 import logging
 from datetime import datetime
+from collections import OrderedDict
 
 
 def augment(url, values, data, result):
@@ -88,7 +89,7 @@ if __name__ == '__main__':
                         format='%(asctime)s %(levelname)-7s  %(message)s')
 
     if options.input:
-        data = json.load(options.input)
+        data = json.load(options.input, object_pairs_hook=OrderedDict)
     else:
         logging.info('Downloading data')
         data = dutil.download_data()
