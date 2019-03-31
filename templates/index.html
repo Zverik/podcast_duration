@@ -25,10 +25,10 @@
   {% if dur %}
   <pre>{{ dur }}</pre>
   {% endif %}
+  <h2>Обновление целого файла</h2>
   {% if status %}
   <div id="status">Status: {{ status }}</div>
   {% else %}
-  <h2>Обновление целого файла</h2>
   <form action="{{ url_for('upload') }}" method="POST" enctype="multipart/form-data" id="uploader">
     <input type="file" name="file">
     <input type="submit" value="Отправить">
