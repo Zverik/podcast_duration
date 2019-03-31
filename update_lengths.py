@@ -87,6 +87,7 @@ if __name__ == '__main__':
 
     logging.basicConfig(level=logging.INFO, datefmt='%H:%M:%S',
                         format='%(asctime)s %(levelname)-7s  %(message)s')
+    logging.getLogger("requests").setLevel(logging.WARNING)
 
     if options.input:
         data = json.load(options.input, object_pairs_hook=OrderedDict)
