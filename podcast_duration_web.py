@@ -49,8 +49,8 @@ def front():
         duration_string = find_duration(urls)
     status = None
     if os.path.exists(STATUS_PATH):
-        with open(STATUS_PATH, 'r') as f:
-            status = f.read()
+        with open(STATUS_PATH, 'rb') as f:
+            status = f.read().decode('utf-8')
     result_path = os.path.join(os.path.dirname(__file__), 'static', 'result.json')
     result_date = None
     if os.path.exists(result_path):

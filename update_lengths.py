@@ -27,7 +27,7 @@ def augment(url, values, data, result):
             break
     logging.info('Augmenting %s with %s', title, atype)
     found = False
-    if title:
+    if podcast:
         gen = dutil.parse_text(atype, values)
         if gen:
             found = True
